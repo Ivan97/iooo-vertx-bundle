@@ -5,14 +5,14 @@ import io.vertx.core.CompositeFuture;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
 import io.vertx.core.Verticle;
+import io.vertx.core.Vertx;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.iooo.coco.configuration.ApplicationConfiguration;
-import tech.iooo.coco.configuration.VertxBuilder;
+import tech.iooo.coco.domain.ApplicationProperties;
 import tech.iooo.coco.verticles.CocoVerticle;
 import tech.iooo.coco.verticles.IoooVerticle;
 
@@ -23,8 +23,11 @@ public class BoosterVerticle extends AbstractVerticle {
 
   private static final Logger logger = LoggerFactory.getLogger(BoosterVerticle.class);
 
-  public BoosterVerticle() {
-    this.vertx = VertxBuilder.getInstance().getVertx();
+  private final ApplicationProperties applicationProperties;
+
+  public BoosterVerticle(Vertx vertx, ApplicationProperties applicationProperties) {
+    this.applicationProperties = applicationProperties;
+    this.vertx = vertx;
   }
 
   @Override
@@ -64,7 +67,7 @@ public class BoosterVerticle extends AbstractVerticle {
         }
         return verticle;
       }, new DeploymentOptions().setInstances(
-          ApplicationConfiguration.getApplicationProperties().getVertx().getInstance())
+          applicationProperties.getVertx().getInstance())
           .setWorker(true), handler -> {
         if (handler.failed()) {
           future.fail(handler.cause());
@@ -89,7 +92,7 @@ public class BoosterVerticle extends AbstractVerticle {
           }
           return verticle;
         }, new DeploymentOptions()
-            .setInstances(ApplicationConfiguration.getApplicationProperties().getVertx().getInstance())
+            .setInstances(applicationProperties.getVertx().getInstance())
             .setWorker(true),
         handler -> {
           if (handler.failed()) {

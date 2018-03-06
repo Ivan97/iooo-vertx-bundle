@@ -1,6 +1,8 @@
 package tech.iooo.coco.domain;
 
 import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 /**
  * Created on 2018/3/5 下午11:15
@@ -8,16 +10,13 @@ import lombok.Data;
  * @author Ivan97
  */
 @Data
+@Component
+@ConfigurationProperties(prefix = "application")
 public class ApplicationProperties {
 
-  private static ApplicationProperties ourInstance = new ApplicationProperties();
   private ApplicationProperties.IoooVertx vertx = new ApplicationProperties.IoooVertx();
 
   private ApplicationProperties() {
-  }
-
-  public static ApplicationProperties getInstance() {
-    return ourInstance;
   }
 
   @Data

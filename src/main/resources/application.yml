@@ -1,0 +1,3 @@
+application:
+  vertx:
+    instance: 3
