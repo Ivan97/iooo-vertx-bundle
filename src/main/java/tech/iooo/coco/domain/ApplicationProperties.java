@@ -16,9 +16,6 @@ public class ApplicationProperties {
 
   private ApplicationProperties.IoooVertx vertx = new ApplicationProperties.IoooVertx();
 
-  private ApplicationProperties() {
-  }
-
   @Data
   public class IoooVertx {
 
