@@ -34,7 +34,7 @@ public class IoooVerticle extends AbstractVerticle {
     vertx.setPeriodic(10000,
         event -> {
           String time = String.valueOf(System.currentTimeMillis());
-          logger.info("id:[{}]>>>{}", id.get(), time);
+          logger.info("id:[{}]>>>{}", id.getAndIncrement(), time);
           eventBus.send(Constants.EVENT_ADDRESS,
               id.getAndIncrement() + SEPARATOR + DigestUtils.sha1Hex(time),
               messageAsyncResult -> {

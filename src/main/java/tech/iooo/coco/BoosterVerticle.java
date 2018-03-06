@@ -80,7 +80,15 @@ public class BoosterVerticle extends AbstractVerticle {
   private Future<Void> deploy(Class<? extends Verticle> clazz)
       throws ConfigurationException {
     Future<Void> future = Future.future();
-    vertx.deployVerticle(clazz, new DeploymentOptions()
+    vertx.deployVerticle(() -> {
+          Verticle verticle = null;
+          try {
+            verticle = clazz.newInstance();
+          } catch (InstantiationException | IllegalAccessException e) {
+            future.fail(e);
+          }
+          return verticle;
+        }, new DeploymentOptions()
             .setInstances(ApplicationConfiguration.getApplicationProperties().getVertx().getInstance())
             .setWorker(true),
         handler -> {
