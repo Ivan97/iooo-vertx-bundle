@@ -70,9 +70,9 @@ public class BoosterVerticle extends AbstractVerticle {
           future.fail(handler.cause());
         } else {
           logger.info("{} deployed", clazz.getSimpleName());
+          future.complete();
         }
       });
-      future.complete();
       return future;
     }
   }
@@ -96,6 +96,7 @@ public class BoosterVerticle extends AbstractVerticle {
             future.fail(handler.cause());
           } else {
             logger.info("{} deployed", clazz.getSimpleName());
+            future.complete();
           }
         });
     return future;
