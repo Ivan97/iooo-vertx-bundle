@@ -9,9 +9,9 @@ import io.vertx.core.Vertx;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLong;
-import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
 import tech.iooo.coco.domain.ApplicationProperties;
 import tech.iooo.coco.verticles.CocoVerticle;
 import tech.iooo.coco.verticles.IoooVerticle;
@@ -35,8 +35,8 @@ public class BoosterVerticle extends AbstractVerticle {
     logger.info("启动 {} initiation...", this.getClass().getSimpleName());
 
     //deploy verticles
-    Future<Void> ioooVerticleFuture = deploy(IoooVerticle.class, new AtomicLong(0));
-    Future<Void> cocoVerticleFuture = deploy(CocoVerticle.class);
+    Future<Void> ioooVerticleFuture = deploy(IoooVerticle.class, true, true, new AtomicLong(0));
+    Future<Void> cocoVerticleFuture = deploy(CocoVerticle.class, true, true);
 
     CompositeFuture.all(Arrays.asList(ioooVerticleFuture, cocoVerticleFuture))
         .setHandler(handler -> {
@@ -48,10 +48,13 @@ public class BoosterVerticle extends AbstractVerticle {
         });
   }
 
-  private Future<Void> deploy(Class<? extends Verticle> clazz, Object... params)
-      throws ConfigurationException {
+  private Future<Void> deploy(Class<? extends Verticle> clazz, boolean worker, boolean async,
+      Object... params) {
+    if (async) {
+      Assert.isTrue(worker, "async的同时，必须为worker");
+    }
     if (params.length == 0) {
-      return deploy(clazz);
+      return deploy(clazz, worker, async);
     } else {
       Future<Void> future = Future.future();
       Class<?>[] classes = new Class[params.length];
@@ -68,7 +71,7 @@ public class BoosterVerticle extends AbstractVerticle {
         return verticle;
       }, new DeploymentOptions().setInstances(
           applicationProperties.getVertx().getInstance())
-          .setWorker(true), handler -> {
+          .setWorker(worker).setMultiThreaded(async), handler -> {
         if (handler.failed()) {
           future.fail(handler.cause());
         } else {
@@ -80,8 +83,10 @@ public class BoosterVerticle extends AbstractVerticle {
     }
   }
 
-  private Future<Void> deploy(Class<? extends Verticle> clazz)
-      throws ConfigurationException {
+  private Future<Void> deploy(Class<? extends Verticle> clazz, boolean worker, boolean async) {
+    if (async) {
+      Assert.isTrue(worker, "async的同时，必须为worker");
+    }
     Future<Void> future = Future.future();
     vertx.deployVerticle(() -> {
           Verticle verticle = null;
